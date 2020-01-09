@@ -1,0 +1,6 @@
+    video_details['Date_publication'] = str(datetime.strptime(soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('Ajoutée le','').replace('.',''), '%d %b %Y')). replace('00:00:00','')
+
+
+    video_details['Language'] = 'unknown'
+    if re.search("([a-z]).*", str(commentaire).lower()) :
+        video_details['Language'] = detect(str(commentaire))
