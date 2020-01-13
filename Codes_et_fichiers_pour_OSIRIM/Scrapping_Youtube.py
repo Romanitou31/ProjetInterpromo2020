@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[38]:
 
 
 # Created on 09/01/2020
@@ -21,7 +21,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
-# In[2]:
+# In[39]:
 
 
 def translate (texte) : 
@@ -37,7 +37,7 @@ def replace_all(text, dic):
     return text
 
 
-# In[3]:
+# In[40]:
 
 
 def getVideos(soup, limitDate=None):
@@ -65,7 +65,7 @@ def getVideos(soup, limitDate=None):
 
 # # Create equation research
 
-# In[300]:
+# In[41]:
 
 
 Airline_Companies = [
@@ -221,7 +221,7 @@ for comp in Airline_Companies:
 # quibbling function
 
 
-# In[5]:
+# In[42]:
 
 
 def ChangeDate(chain):
@@ -284,7 +284,7 @@ def DateCalculation(chain):
 
 # # Creation of the url list
 
-# In[6]:
+# In[43]:
 
 
 def URLlist(Research_Equations,limitDate):
@@ -308,7 +308,7 @@ def URLlist(Research_Equations,limitDate):
 
 # # Function that creates our filled Json file
 
-# In[12]:
+# In[44]:
 
 
 def GetCodeHTML(URL_list, fig):
@@ -421,7 +421,11 @@ def CreateJs(comment, nb_com, soup, comment_date):
     dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
     var_date_of_public = soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
     var_date_of_public = replace_all(var_date_of_public,dic)
-    video_details['Date_publication'] = str(datetime.strptime(re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public).group(0), '%d %b %Y')). replace('00:00:00', '')
+    var_date_not_None = re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public)
+    if var_date_not_None == None :
+        video_details['Date_publication'] = ''
+    else :
+        video_details['Date_publication'] = str(datetime.strptime(var_date_not_None.group(0), '%d %b %Y')). replace('00:00:00', '')
 
 # get the number of views
     video_details['View_Count'] = (soup.find(
@@ -497,7 +501,7 @@ def scroll(url, nb_scroll):
 
 # # global implementation
 
-# In[16]:
+# In[45]:
 
 
 # Create a new json
@@ -530,18 +534,23 @@ for Equation in equations:
 print('extraction complete')
 
 
-# In[17]:
+# In[ ]:
 
 
 dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
 var_date_of_public = SoupCréeJS.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
 var_date_of_public = replace_all(var_date_of_public,dic)
-var_date_of_public
 str(datetime.strptime(re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public).group(0), '%d %b %Y')). replace('00:00:00', '')
 
 
-# In[18]:
+# In[ ]:
 
 
 SoupCréeJS.find('span', attrs={'class': 'watch-title'}).text.strip()
+
+
+# In[ ]:
+
+
+
 
