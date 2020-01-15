@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[38]:
+# In[31]:
 
 
 # Created on 09/01/2020
@@ -19,9 +19,17 @@ from langdetect import detect
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+import numpy as np
 
 
-# In[39]:
+# In[1]:
+
+
+#path phantomJS
+path = './phantomjs'
+
+
+# In[4]:
 
 
 def translate (texte) : 
@@ -37,35 +45,9 @@ def replace_all(text, dic):
     return text
 
 
-# In[40]:
-
-
-def getVideos(soup, limitDate=None):
-    """Documentation    
-       Parameters:
-            soup : soup for the request 
-            limitDate : date on which we will filter video
-       out : 
-            list_Videos : search equation videos list        
-    """
-    videos = soup.findAll('a', attrs={'class': 'yt-uix-tile-link'})
-    dates = soup.findAll('ul', attrs={'class': 'yt-lockup-meta-info'})
-    
-    list_Videos = []
-    for i in range(len(videos)):
-        date = DateCalculation(str(dates[i]).split(
-            "</li><li>")[0].split("<li>")[-1])
-        if limitDate is None:
-            list_Videos.append('https://www.youtube.com'+videos[i]['href'])
-        elif date > limitDate:
-            list_Videos.append('https://www.youtube.com'+videos[i]['href'])
-            
-    return list_Videos
-
-
 # # Create equation research
 
-# In[41]:
+# In[6]:
 
 
 Airline_Companies = [
@@ -221,7 +203,7 @@ for comp in Airline_Companies:
 # quibbling function
 
 
-# In[42]:
+# In[7]:
 
 
 def ChangeDate(chain):
@@ -284,10 +266,10 @@ def DateCalculation(chain):
 
 # # Creation of the url list
 
-# In[43]:
+# In[ ]:
 
 
-def URLlist(Research_Equations,limitDate):
+def URLlist(Research_Equations):
     # returns the list of videos of the search equation passed in parameter
     """Documentation    
        Parameters:
@@ -298,17 +280,25 @@ def URLlist(Research_Equations,limitDate):
     root_URL = "https://www.youtube.com/results?search_query="
     #ResearchEquations = "airbus+A380"
 
-    r = requests.get(root_URL + Research_Equations)
+    r = requests.get(root_URL + Research_Equations + '&sp=EgIIAw%253D%253D')
     page = r.text
     soup = BeautifulSoup(page, 'html.parser')
+    list_Videos = []
+    for videos in soup.findAll('a', attrs={'class': 'yt-uix-tile-link'}) : 
+        list_Videos.append('https://www.youtube.com'+videos['href'])
     
-    list_Videos = getVideos(soup,limitDate)
     return list_Videos
+
+
+list_Videos = []
+for Equation in equations:
+    list_Videos += URLlist(Equation)
+list_Videos = np.unique(list_Videos)
 
 
 # # Function that creates our filled Json file
 
-# In[44]:
+# In[43]:
 
 
 def GetCodeHTML(URL_list, fig):
@@ -323,6 +313,7 @@ def GetCodeHTML(URL_list, fig):
     url = URL_list[fig]
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     web_page = urlopen(req).read()
+    time.sleep(2)
     return BeautifulSoup(web_page, 'html.parser')
 
 
@@ -405,8 +396,11 @@ def CreateJs(comment, nb_com, soup, comment_date):
         video_details[name_col[i]] = ' '
 
 # get the title of the video
-    video_details['Title'] = soup.find(
-        'span', attrs={'class': 'watch-title'}).text.strip()
+    if soup.find('span', attrs={'class': 'watch-title'}) == None :
+         video_details['Title'] = ' '
+    else :
+        video_details['Title'] = soup.find(
+            'span', attrs={'class': 'watch-title'}).text.strip()
 
 # get the name of the chain
     for script in soup.findAll('script', attrs={'type': 'application/ld+json'}):
@@ -471,7 +465,7 @@ def CreateJs(comment, nb_com, soup, comment_date):
             video_details['Language'] = 'unknown'
 
         
-    with open('../RESULTATS_JSON/data_youtube.json', 'a', encoding='utf8') as outfile:
+    with open('../RESULTATS_JSON/data_Youtube.json', 'a', encoding='utf8') as outfile:
         json.dump(video_details, outfile, ensure_ascii=False, indent=4)
 
 
@@ -488,7 +482,7 @@ def scroll(url, nb_scroll):
     """
     options = Options()
     options.add_argument("--start-maximized")
-    driver =  webdriver.PhantomJS('./phantomjs')
+    driver =  webdriver.PhantomJS(path)
     driver.get(url)
     Y = 0
     for _ in range(nb_scroll):
@@ -501,56 +495,46 @@ def scroll(url, nb_scroll):
 
 # # global implementation
 
-# In[45]:
+# In[41]:
 
 
 # Create a new json
 
-with open('../RESULTATS_JSON/data_youtube.json', 'w', encoding='utf8') as outfile:
+with open('../RESULTATS_JSON/data_Youtube.json', 'w', encoding='utf8') as outfile:
     json
 
-for Equation in equations:
-    list_Videos = URLlist(Equation,None)
-    # len(list_Videos)
-    if len(list_Videos) > 1 :
-        for URL_unique in range(min(len(list_Videos),7)):
-            soup1 = scroll(list_Videos[URL_unique], 4)
-            SoupCréeJS = GetCodeHTML(list_Videos, URL_unique)
-        # date comment
-            date1 = []
-            for span1 in soup1.findAll('span', attrs={'class': "comment-renderer-time"}):
-                a = (span1.find('a', attrs={'class': "yt-uix-sessionlink spf-link"}).text.strip())
-                date1.append(a)
-            date_Track = 0
-            for span in soup1.findAll('div', attrs={'class': 'comment-renderer-text-content'}):
-                if span.text.strip() != '':
-                    comment = span.text.strip()
-                    nb_com = re.search("[0-9][0-9]*", (soup1.find('h2', 
-                                                                 attrs={'class': 'comment-section-header-renderer'}).text.strip()).replace('\xa0',' ').replace('\u202f','')).group(0)
-                    CreateJs(comment, nb_com, SoupCréeJS, date1[date_Track])
-                    date_Track += 1
-            print('vidéo numéro : ', URL_unique, ' fini')
-        print('équation finie :', Equation)
+for URL_unique in range(len(list_Videos)):
+    soup1 = scroll(list_Videos[URL_unique], 4)
+    
+    SoupCréeJS = GetCodeHTML(list_Videos, URL_unique)
+# date comment
+    date1 = []
+    for span1 in soup1.findAll('span', attrs={'class': "comment-renderer-time"}):
+        a = (span1.find('a', attrs={'class': "yt-uix-sessionlink spf-link"}).text.strip())
+        date1.append(a)
+    date_Track = 0
+    for span in soup1.findAll('div', attrs={'class': 'comment-renderer-text-content'}):
+        if span.text.strip() != '':
+            comment = span.text.strip()
+            nb_com = re.search("[0-9][0-9]*", (soup1.find('h2', 
+                                                         attrs={'class': 'comment-section-header-renderer'}).text.strip()).replace('\xa0',' ').replace('\u202f','')).group(0)
+            CreateJs(comment, nb_com, SoupCréeJS, date1[date_Track])
+            date_Track += 1
+    print('vidéo numéro : ', URL_unique, ' fini')
 print('extraction complete')
 
-
-# In[ ]:
+# In[467]:
 
 
 dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
 var_date_of_public = SoupCréeJS.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
 var_date_of_public = replace_all(var_date_of_public,dic)
+var_date_of_public
 str(datetime.strptime(re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public).group(0), '%d %b %Y')). replace('00:00:00', '')
 
 
-# In[ ]:
+# In[457]:
 
 
 SoupCréeJS.find('span', attrs={'class': 'watch-title'}).text.strip()
-
-
-# In[ ]:
-
-
-
 
