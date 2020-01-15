@@ -22,7 +22,7 @@ from selenium.webdriver.chrome.options import Options
 import numpy as np
 
 
-# In[1]:
+# In[36]:
 
 
 #path phantomJS
@@ -32,14 +32,27 @@ path = './phantomjs'
 # In[4]:
 
 
-def translate (texte) : 
+def translate (text) : 
+    """Documentation    
+       Parameters:
+            text : character string 
+       out : 
+            text : text translated in english
+    """
     try :
-        new = str(TextBlob(texte).translate(to='en'))
+        new = str(TextBlob(text).translate(to='en'))
         return new
     except :
-        return texte
+        return text
     
 def replace_all(text, dic):
+    """Documentation    
+       Parameters:
+            text : character string
+            dic : dictionary which contains the changes to be made
+       out : 
+            text : text with all changes made 
+    """
     for i, j in dic.items():
         text = text.replace(i, j)
     return text
@@ -403,13 +416,19 @@ def CreateJs(comment, nb_com, soup, comment_date):
             'span', attrs={'class': 'watch-title'}).text.strip()
 
 # get the name of the chain
-    for script in soup.findAll('script', attrs={'type': 'application/ld+json'}):
-        channelDescription = json.loads(script.text.strip())
-        video_details['Author'] = channelDescription['itemListElement'][0]['item']['name']
+    if soup.findAll('script', attrs={'type': 'application/ld+json'}) == None :
+        video_details['Author'] = ''
+    else :
+        for script in soup.findAll('script', attrs={'type': 'application/ld+json'}):
+            channelDescription = json.loads(script.text.strip())
+            video_details['Author'] = channelDescription['itemListElement'][0]['item']['name']
 
 # get description
-    video_details['Description'] = soup.find(
-        'p', attrs={'id': "eow-description"}).text.strip()
+    if soup.find('p', attrs={'id': "eow-description"}) == None :
+        video_details['Description'] = ''
+    else :
+        video_details['Description'] = soup.find(
+            'p', attrs={'id': "eow-description"}).text.strip()
 
 # get the date of publication
     dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
@@ -422,18 +441,27 @@ def CreateJs(comment, nb_com, soup, comment_date):
         video_details['Date_publication'] = str(datetime.strptime(var_date_not_None.group(0), '%d %b %Y')). replace('00:00:00', '')
 
 # get the number of views
-    video_details['View_Count'] = (soup.find(
-        'div', attrs={'class': 'watch-view-count'}).text.strip()).replace('vues', '')
+    if soup.find('div', attrs={'class': 'watch-view-count'}) == None :
+        video_details['View_Count'] = ''
+    else :
+        video_details['View_Count'] = (soup.find(
+            'div', attrs={'class': 'watch-view-count'}).text.strip()).replace('vues', '')
 
 # get a likes button
-    for span in soup.findAll('', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
-        video_details['Likes'] = span.find(
-            'span', attrs={'class': 'yt-uix-button-content'}).text.strip()
+    if soup.findAll('', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}) == None:
+        video_details['Likes'] = ''
+    else :
+        for span in soup.findAll('', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
+            video_details['Likes'] = span.find(
+                'span', attrs={'class': 'yt-uix-button-content'}).text.strip()
 
 # get a dislikes button
-    for button in soup.findAll('button', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
-        video_details['Dislikes'] = button.find(
-            'span', attrs={'class': 'yt-uix-button-content'}).text.strip()
+    if soup.findAll('button', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}) == None:
+        video_details['Dislikes'] = ''
+    else :
+        for button in soup.findAll('button', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
+            video_details['Dislikes'] = button.find(
+                'span', attrs={'class': 'yt-uix-button-content'}).text.strip()
 
 # get subscriber number
     if (soup.find('span', attrs={'class': 'yt-subscription-button-subscriber-count-branded-horizontal yt-subscriber-count'}) == None):
@@ -497,7 +525,6 @@ def scroll(url, nb_scroll):
 
 # In[41]:
 
-
 # Create a new json
 
 with open('../RESULTATS_JSON/data_Youtube.json', 'w', encoding='utf8') as outfile:
@@ -522,19 +549,3 @@ for URL_unique in range(len(list_Videos)):
             date_Track += 1
     print('vidéo numéro : ', URL_unique, ' fini')
 print('extraction complete')
-
-# In[467]:
-
-
-dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
-var_date_of_public = SoupCréeJS.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
-var_date_of_public = replace_all(var_date_of_public,dic)
-var_date_of_public
-str(datetime.strptime(re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public).group(0), '%d %b %Y')). replace('00:00:00', '')
-
-
-# In[457]:
-
-
-SoupCréeJS.find('span', attrs={'class': 'watch-title'}).text.strip()
-
