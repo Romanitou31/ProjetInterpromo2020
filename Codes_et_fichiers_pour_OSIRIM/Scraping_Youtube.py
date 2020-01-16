@@ -432,7 +432,10 @@ def CreateJs(comment, nb_com, soup, comment_date):
 
 # get the date of publication
     dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
-    var_date_of_public = soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
+    if soup.find('strong',attrs={'class': "watch-time-text"}) == None :
+		var_date_of_public = ''
+	else :
+		var_date_of_public = soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
     var_date_of_public = replace_all(var_date_of_public,dic)
     var_date_not_None = re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public)
     if var_date_not_None == None :
