@@ -1,12 +1,41 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[31]:
+# <h1>Group 1 - Data Collection<span class="tocSkip"></span>
 
+# # Introduction
 
-# Created on 09/01/2020
-# Group1
-# @authors: benjamin anton
+# One of the sources we need to scrap was the Youtube website. This notebook contains the code to retrieve the data and also the Robot to retrieve the data once a week. we are scraping the comments and all the information about the videos.
+# V0 : basic scrap
+# 
+# V1 : add comment, number of Like and  Dislike, scroll function, fills a json file based on a template.  
+# 
+# V2 : add research equation, function which transform the results based on a typology. 
+# 
+# V3 : test of previous function in the srap
+# 
+# V4 : add the quality on the notebook
+# 
+# V5 : test code and correction error
+# 
+# V6 : add translation
+# 
+# V7 : improve date of publication by creating a function
+# 
+# V8 : change chromedriver to phantomJS
+# 
+# V9 : optimizes and corrects errors 
+# 
+# V10 : optimizes and corrects errors 
+# 
+# V11 : final scrap
+
+# # Environment
+
+# ## Libraries
+
+# In[18]:
+
 
 import json
 import re
@@ -20,16 +49,24 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import numpy as np
+import pandas as pd
 
 
-# In[36]:
+# In[6]:
 
 
 #path phantomJS
 path = './phantomjs'
 
 
-# In[4]:
+# ## Data Loading
+# 
+
+# ## Functions
+
+# This part contains all the functions we developped during the project
+
+# In[7]:
 
 
 def translate (text) : 
@@ -60,7 +97,7 @@ def replace_all(text, dic):
 
 # # Create equation research
 
-# In[6]:
+# In[8]:
 
 
 Airline_Companies = [
@@ -216,7 +253,7 @@ for comp in Airline_Companies:
 # quibbling function
 
 
-# In[7]:
+# In[9]:
 
 
 def ChangeDate(chain):
@@ -279,10 +316,10 @@ def DateCalculation(chain):
 
 # # Creation of the url list
 
-# In[ ]:
+# In[12]:
 
 
-def URLlist(Research_Equations):
+def URLlist(Research_Equations,take7days : bool):
     # returns the list of videos of the search equation passed in parameter
     """Documentation    
        Parameters:
@@ -292,8 +329,11 @@ def URLlist(Research_Equations):
     """
     root_URL = "https://www.youtube.com/results?search_query="
     #ResearchEquations = "airbus+A380"
-
-    r = requests.get(root_URL + Research_Equations + '&sp=EgIIAw%253D%253D')
+    
+    if take7days is True :
+        r = requests.get(root_URL + Research_Equations + '&sp=EgIIAw%253D%253D')
+    else :
+        r = requests.get(root_URL + Research_Equations)
     page = r.text
     soup = BeautifulSoup(page, 'html.parser')
     list_Videos = []
@@ -305,13 +345,13 @@ def URLlist(Research_Equations):
 
 list_Videos = []
 for Equation in equations:
-    list_Videos += URLlist(Equation)
+    list_Videos += URLlist(Equation,True)
 list_Videos = np.unique(list_Videos)
 
 
 # # Function that creates our filled Json file
 
-# In[43]:
+# In[77]:
 
 
 def GetCodeHTML(URL_list, fig):
@@ -330,94 +370,118 @@ def GetCodeHTML(URL_list, fig):
     return BeautifulSoup(web_page, 'html.parser')
 
 
-def CreateJs(comment, nb_com, soup, comment_date):
+def CreateJs(comment, nb_com, soup, comment_date,df):
     # create the json file with all the information on the page
     """Documentation    
 
        Parameters:
+            df : dataframe
             comment : character string of the comment
             nb_com : number of comment
             comment_date : comment date
+            soup : hltm code of the video
+        out :
+            df : dataframe
 
     """
-    name_col = ['Airline_Name',
-                'Airline_Type',
-                'Region_Operation',
-                'Aircraft_Type',
-                'Cabin_Class',
-                'Type_Of_Lounge',
-                'Type_Of_Traveller',
-                'Date_Visit',
-                'Date_Flown',
-                'Airport',
-                'Route',
-                'Category',
-                'Category_Detail',
-                'Cabin_Staff_Service',
-                'Lounge_Staff_Service',
-                'Bar_And_Beverages',
-                'Food_And_Beverages',
-                'Ground_Service',
-                'Catering', 'Cleanliness',
-                'Lounge_Comfort',
-                'Aisle_Space',
-                'Wifi_And_Connectivity',
-                'Inflight_Entertainment',
-                'Viewing_Tv_Screen',
-                'Power_Supply',
-                'Seat',
-                'Seat_type',
-                'Seat_Comfort',
-                'Seat_Legroom',
-                'Seat_Storage',
-                'Seat_Width',
-                'Seat_Recline',
-                'Washrooms',
-                'Value_For_Money',
-                'Overall_Customer_Rating',
-                'Overall_Service_Rating',
-                'Overall_Airline_Rating',
-                'Recommended',
-                'Departure_city',
-                'Arrival_city',
-                'Nb_bus_taken',
-                'Nb_train_taken',
-                'Nb_car_taken',
-                'Nb_plane_taken',
-                'Duration',
-                'Price_min',
-                'Price_max',
-                'Nb_sharing',
-                'Awards',
-                'Registration',
-                'Language']
+    name_col = ['Data_Source',
+            'Airline_Name',
+            'Airline_Type',
+            'Region_Operation',
+            'Aircraft_Type',
+            'Cabin_Class',
+            'Type_Of_Lounge',
+            'Type_Of_Traveller',
+            'Date_Visit','Date_Flown',
+            'Airport','Route',
+            'Category',
+            'Category_Detail',
+            'Cabin_Staff_Service',
+            'Lounge_Staff_Service',
+            'Bar_And_Beverages',
+            'Food_And_Beverages',
+            'Ground_Service',
+            'Catering',
+            'Cleanliness',
+            'Lounge_Comfort',
+            'Aisle_Space',
+            'Wifi_And_Connectivity',
+            'Inflight_Entertainment',
+            'Viewing_Tv_Screen',
+            'Power_Supply',
+            'Seat',
+            'Seat_type',
+            'Seat_Comfort',
+            'Seat_Legroom',
+            'Seat_Storage',
+            'Seat_Width',
+            'Seat_Recline',
+            'Washrooms',
+            'Value_For_Money',
+            'Overall_Customer_Rating',
+            'Overall_Service_Rating',
+            'Overall_Airline_Rating',
+            'Recommended',
+            'Date_Review',
+            'Review',
+            'Departure_city',
+            'Arrival_city',
+            'Nb_bus_taken',
+            'Nb_train_taken',
+            'Nb_car_taken',
+            'Nb_plane_taken',
+            'Duration',
+            'Price_min',
+            'Price_max',
+            'Title',
+            'Author',
+            'Description',
+            'Date_publication',
+            'View_Count',
+            'Likes',
+            'Dislikes',
+            'Nb_subscribers',
+            'Nb_comments',
+            'Nb_sharing',
+            'Hashtags',
+            'Awards',
+            'Registration',
+            'Location',
+            'Contributions_Pers',
+            'Nb_pertinent_comments_Pers',
+            'Queuing_Times',
+            'Terminal_Seating',
+            'Terminal_Signs',
+            'Airport_Shopping',
+            'Experience_At_Airport']
 
     soup = soup
+    
+
     video_details = {}
+    
+    for i in name_col : 
+        video_details[i] = None
 
 # Fill data
 
     video_details['Data_Source'] = 'Youtube'
 
-    for i in range(39):
-        video_details[name_col[i]] = ' '
 
     video_details['Date_Review'] = DateCalculation(comment_date)
     video_details['Review'] = translate(comment)
 
-    for i in range(39, 48):
-        video_details[name_col[i]] = ' '
 
 # get the title of the video
     if soup.find('span', attrs={'class': 'watch-title'}) == None :
-         video_details['Title'] = ' '
+         video_details['Title'] = None
     else :
         video_details['Title'] = soup.find(
             'span', attrs={'class': 'watch-title'}).text.strip()
 
 # get the name of the chain
     if soup.findAll('script', attrs={'type': 'application/ld+json'}) == None :
-        video_details['Author'] = ''
+        video_details['Author'] = None
     else :
         for script in soup.findAll('script', attrs={'type': 'application/ld+json'}):
             channelDescription = json.loads(script.text.strip())
@@ -425,7 +489,7 @@ def CreateJs(comment, nb_com, soup, comment_date):
 
 # get description
     if soup.find('p', attrs={'id': "eow-description"}) == None :
-        video_details['Description'] = ''
+        video_details['Description'] = None
     else :
         video_details['Description'] = soup.find(
             'p', attrs={'id': "eow-description"}).text.strip()
@@ -433,26 +497,26 @@ def CreateJs(comment, nb_com, soup, comment_date):
 # get the date of publication
     dic = {'.':'','avr':'apr','janv':'jan','mars':'mar','mai':'may','juin':'jun','févr':'feb','juil':'jul','déc':'dec','août':'aug','sept':'sep','aoÃ»t':'aug','dÃ©c':'dec'}
     if soup.find('strong',attrs={'class': "watch-time-text"}) == None :
-		var_date_of_public = ''
-	else :
-		var_date_of_public = soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
+        var_date_of_public = ''
+    else :
+        var_date_of_public = soup.find('strong',attrs={'class': "watch-time-text"}).text.strip().replace('.','')
     var_date_of_public = replace_all(var_date_of_public,dic)
     var_date_not_None = re.search("[0-9][0-9]* [a-zA-Z]* [0-9]*", var_date_of_public)
     if var_date_not_None == None :
-        video_details['Date_publication'] = ''
+        video_details['Date_publication'] = None
     else :
         video_details['Date_publication'] = str(datetime.strptime(var_date_not_None.group(0), '%d %b %Y')). replace('00:00:00', '')
 
 # get the number of views
     if soup.find('div', attrs={'class': 'watch-view-count'}) == None :
-        video_details['View_Count'] = ''
+        video_details['View_Count'] = None
     else :
         video_details['View_Count'] = (soup.find(
             'div', attrs={'class': 'watch-view-count'}).text.strip()).replace('vues', '')
 
 # get a likes button
     if soup.findAll('', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}) == None:
-        video_details['Likes'] = ''
+        video_details['Likes'] = None
     else :
         for span in soup.findAll('', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
             video_details['Likes'] = span.find(
@@ -460,7 +524,7 @@ def CreateJs(comment, nb_com, soup, comment_date):
 
 # get a dislikes button
     if soup.findAll('button', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}) == None:
-        video_details['Dislikes'] = ''
+        video_details['Dislikes'] = None
     else :
         for button in soup.findAll('button', attrs={'class': "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-unclicked yt-uix-clickcard-target yt-uix-tooltip"}):
             video_details['Dislikes'] = button.find(
@@ -475,7 +539,6 @@ def CreateJs(comment, nb_com, soup, comment_date):
 
     video_details['Nb_comments'] = (nb_com).replace('commentaires', '')
 
-    video_details[name_col[48]] = ' '
 # get hashtags
     hashtags = []
 
@@ -484,9 +547,7 @@ def CreateJs(comment, nb_com, soup, comment_date):
             hashtags.append(a.text.strip())
     video_details['hashtags'] = hashtags
 
-    for i in range(49, 51):
-        video_details[name_col[i]] = ' '
-
+    
     video_details['Language'] = 'unknown'
 
     if re.search("([a-z]).*", str(comment).lower()) : 
@@ -495,10 +556,14 @@ def CreateJs(comment, nb_com, soup, comment_date):
         except :
             video_details['Language'] = 'unknown'
 
-        
-    with open('../RESULTATS_JSON/data_Youtube.json', 'a', encoding='utf8') as outfile:
-        json.dump(video_details, outfile, ensure_ascii=False, indent=4)
+    if df is None:
+        df=pd.DataFrame(columns=list(video_details.keys()))
+        df.loc[0,:]=list(video_details.values())
+    else:
+        df.loc[df.shape[0],:]=list(video_details.values())
+    
 
+    return df
 
 def scroll(url, nb_scroll):
     #scroll down in the page
@@ -524,15 +589,20 @@ def scroll(url, nb_scroll):
     return BeautifulSoup(driver.page_source, 'html.parser')
 
 
+# # Crawl
+
+# This part contains the crawl of AirlineQuality website with the execution of all functions 
+
 # # global implementation
 
-# In[41]:
+# In[74]:
 
-# Create a new json
 
-with open('../RESULTATS_JSON/data_Youtube.json', 'w', encoding='utf8') as outfile:
-    json
 
+# Create a new json pour la premiere fois => 
+with open('../RESULTATS_JSON/data_Youtube.json', 'w', encoding='utf8') as outfile:  json
+
+df= None
 for URL_unique in range(len(list_Videos)):
     soup1 = scroll(list_Videos[URL_unique], 4)
     
@@ -548,7 +618,25 @@ for URL_unique in range(len(list_Videos)):
             comment = span.text.strip()
             nb_com = re.search("[0-9][0-9]*", (soup1.find('h2', 
                                                          attrs={'class': 'comment-section-header-renderer'}).text.strip()).replace('\xa0',' ').replace('\u202f','')).group(0)
-            CreateJs(comment, nb_com, SoupCréeJS, date1[date_Track])
+            df = CreateJs(comment, nb_com, SoupCréeJS, date1[date_Track],df)
             date_Track += 1
     print('vidéo numéro : ', URL_unique, ' fini')
+            
+df.to_json('../RESULTATS_JSON/data_Youtube.json',orient='index')
 print('extraction complete')
+
+
+# # Descriptive statistics on recovered data
+
+# In[ ]:
+
+
+path1 ='../RESULTATS_JSON/data_Youtube.json' 
+data = pd.read_json(path1, orient="index")
+
+
+# In[ ]:
+
+
+
+

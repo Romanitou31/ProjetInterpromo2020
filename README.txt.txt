@@ -1,6 +1,6 @@
 How launch the different scraping and cron? 
 
-- Import the "phantomjs" file on OSIRIM and execute the command "chmod +x path_of_your_file/phantomjs"
+- Import the "phantomjs" file on OSIRIM and execute the command "chmod +x path_of_your_file/phantomjs" to made it executable.
 
 
 Weibo :

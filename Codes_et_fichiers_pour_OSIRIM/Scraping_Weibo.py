@@ -286,7 +286,7 @@ with open('../RESULTATS_JSON/data_Weibo.json', 'w', encoding='utf8') as outfile:
 
 df = None
 
-for url in url_list:
+for url in url_list[:30]:
     url = url.replace(' ', '%20')
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     web_page = urlopen(req).read()
