@@ -625,21 +625,12 @@ def addJSON(file: str, df, creat: bool):
 dic = createDictionnary()
 # Starting the scrap function
 df = scrap(dic, 20000)
+file ='../RESULTATS_JSON/data_Airline.json'
 # Transformation and Complete of Json
 addJSON(file, df, True)
 
 
 # # Descriptive statistics on recovered data
-
-# In[9]:
-
-
-file ='../RESULTATS_JSON/data_Airline.json'
-
-with open(file) as train_file:
-    dict_train = json.load(train_file)
-data = pd.read_json(dict_train, orient="records")
-
 
 # ##### A complet Airline scraping:
 
