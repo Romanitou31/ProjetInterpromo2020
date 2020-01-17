@@ -5,7 +5,7 @@ How launch the different scraping and cron?
 
 Weibo :
 Step 1 : Open the file 'Report_Notebook_Weibo.ipynb'
-Step 2 : Change the json save path in "createJson" function and in crawl part.
+Step 2 : Change the json save path in crawl part (2 path to change).
 Step 3 : Change the variable nb_days in the crawl part. Write 7 if you want only the articles published the 7 last days, or 20 000 if you want all articles published. 
 Step 4 : Export the file "Report_Notebook_Weibo" in py.file.
 Step 5 : Connect to OSIRIM
@@ -15,7 +15,7 @@ Step 7 : Execute the cron on OSIRIM every monday with the command "SBATCH 00 3 *
 Youtube :
 Step 1 : Open the file 'Report_Notebook_Youtube.ipynb'
 Step 2 : Change the variable "path" for PhantomJs path. Choose the phantomJs linux. 
-Step 3 : Change the json save path in "createJson" function and in "global implementation" part.
+Step 3 : Change the json save path in "global implementation" part (2 path to change) and in "descriptive statistics on recovered data" .
 Step 4 : Change the variable "take7days" in "URLlist" call function. Write 'True' if you want only the video published the 7 last days, or "False" if you want all video published. 
 Step 5 : Export the file "Report_Notebook_Youtube" in py.file.
 Step 6 : Connect to OSIRIM
