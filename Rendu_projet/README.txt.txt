@@ -46,12 +46,6 @@ Step 7 : Execute the cron on OSIRIM every monday with the following command :
 	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Weibo.sh" to execute the code every monday at 3h00 am
 Step 8 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
 
-
-
-
-
-
-
 Youtube :
 Step 1 : Open the file 'Report_Notebook_Youtube.ipynb'
 Step 2 : Change the variable "path" for PhantomJs path. Choose the phantomJs linux. 
@@ -60,7 +54,12 @@ Step 4 : Change the variable "take7days" in "URLlist" call function. Write 'True
 Step 5 : Export the file "Report_Notebook_Youtube.ipynb" in py.file with the name "Scraping_Youtube.py".
 Step 6 : Connect to OSIRIM
 Step 7 : Import the script 'Scraping_Youtube.sh' and "Scraping_Youtube.py" on OSIRIM
-Step 8 : Execute the cron on OSIRIM every monday with the command "SBATCH 00 3 * * 1 path_of_your_file/Scraping_Youtube.sh"
+Step 8 : Execute the cron on OSIRIM every monday with the following command : 
+	- "crontab -e" to edit the crontab and add a line inside
+	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Youtube.sh" to execute the code every monday at 3h00 am
+Step 9 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
+
+
 
 
 
