@@ -15,6 +15,19 @@ Step 2 : Change the variable "webdriver" in "getdata" function with your chromed
 Step 3 : Change the json save path in "crawl" part.
 Step 4 : Execute the script "Report_Notebook_Rome2rio.ipynb" manually every month (the 1st of each Month)
 
+AirlineQuality :
+Step 1 : Open the file 'Report_Notebook_AirlineQuality.ipynb' 
+Step 2 : Change the json save path in "Crawl" part (1 path to change).
+Step 3 : Change the number in the call of "scrap" function (in Crawl part). Write 7 if you want only the comments published the 7 last days, or 20 000 if you want all articles published. 
+Step 4 : Export the file "Report_Notebook_AirlineQuality.ipynb" in py.file with the name "Scraping_Airlines.py"
+Step 5 : Connect to OSIRIM
+Step 6 : Import the script 'Scraping_Airlines.sh' and the code "Scraping_Airlines.py" on OSIRIM
+Step 7 : Execute the cron on OSIRIM every monday with the following command : 
+	- "crontab -e
+	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Airlines.sh" to execute the code every monday at 3h00 am
+Step 8 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
+
+
 
 - Import the "phantomjs" file on OSIRIM and execute the command "chmod +x path_of_your_file/phantomjs" to made it executable.
 
@@ -40,11 +53,3 @@ Step 8 : Execute the cron on OSIRIM every monday with the command "SBATCH 00 3 *
 
 
 
-AirlineQuality :
-Step 1 : Open the file 'Report_Notebook_AirlineQuality.ipynb' 
-Step 2 : Change the json save path in "Crawl" part (1 path to change).
-Step 3 : Change the number in the call of "scrap" function (in Crawl part). Write 7 if you want only the comments published the 7 last days, or 20 000 if you want all articles published. 
-Step 4 : Export the file "Report_Notebook_AirlineQuality.ipynb" in py.file with the name "Scraping_Airlines.py"
-Step 5 : Connect to OSIRIM
-Step 6 : Import the script 'Scraping_Airlines.sh' and "Scraping_Airlines.py" on OSIRIM
-Step 7 : Execute the cron on OSIRIM every monday with the command "SBATCH 00 3 * * 1 path_of_your_file/Scraping_Airlines.sh"
