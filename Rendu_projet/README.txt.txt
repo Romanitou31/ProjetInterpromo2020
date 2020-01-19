@@ -65,12 +65,24 @@ Step 2 : Change the parameters in "Lets_Scrape" call function. The first paramet
 The second parameter is the phantomjs path. The third parameter is a CSV with all companies we want to scrap. The fourth parameter is the json save path.
 Step 3 : Export the file "Report_Notebook_Tripadvisor.ipynb" in py.file with the name "Scraping_Tripadvisor.py".
 Step 4 : Connect to OSIRIM
-Step 5 : Import the script 'Scraping_Tripadvisor.sh' and "Scraping_Tripadvisor.py" on OSIRIM
+Step 5 : Import the script 'Scraping_Tripadvisor.sh' and "Scraping_Tripadvisor.py" and also the CSV "df_companies" on OSIRIM
 Step 6 : Execute the cron on OSIRIM every monday with the following command : 
 	- "crontab -e" to edit the crontab and add a line inside
 	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Tripadvisor.sh" to execute the code every monday at 3h00 am
 Step 7 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
 
+Facebook : WARNING : We don't have implement the Robot for the moment. For the moment, if you want to have the last publications,you need to launch all the program.
+Step 1 : Open the file 'Report_Notebook_Facebook.ipynb'
+Step 2 : Change the variable "lien_driver" in "CreateJs" function. Choose the phantomJs linux. 
+Step 3 : Change the json save path in "Crawl" part (2 path to change) and in "Descriptive statistics on recovered data" .
+Step 4 : Change the parameter in "Create_List_URL" call function. This path concern the facebook pages we want to scroll.
+Step 5 : Export the file "Report_Notebook_Facebook.ipynb" in py.file with the name "Scraping_Facebook.py".
+Step 6 : Connect to OSIRIM
+Step 7 : Import the script 'Scraping_Facebook.sh' and "Scraping_Facebook.py" and also the file "pagesFb" on OSIRIM
+Step 8 : Execute the cron on OSIRIM every monday with the following command : 
+	- "crontab -e" to edit the crontab and add a line inside
+	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Facebook.sh" to execute the code every monday at 3h00 am
+Step 9 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
 
 
 
