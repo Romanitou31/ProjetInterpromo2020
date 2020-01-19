@@ -59,6 +59,17 @@ Step 8 : Execute the cron on OSIRIM every monday with the following command :
 	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Youtube.sh" to execute the code every monday at 3h00 am
 Step 9 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
 
+Tripadvisor :
+Step 1 : Open the file 'Report_Notebook_Tripadvisor.ipynb'
+Step 2 : Change the parameters in "Lets_Scrape" call function. The first parameter is the number of day before today you want to scrap (fixed to seven to have only one week comments).
+The second parameter is the phantomjs path. The third parameter is a CSV with all companies we want to scrap. The fourth parameter is the json save path.
+Step 3 : Export the file "Report_Notebook_Tripadvisor.ipynb" in py.file with the name "Scraping_Tripadvisor.py".
+Step 4 : Connect to OSIRIM
+Step 5 : Import the script 'Scraping_Tripadvisor.sh' and "Scraping_Tripadvisor.py" on OSIRIM
+Step 6 : Execute the cron on OSIRIM every monday with the following command : 
+	- "crontab -e" to edit the crontab and add a line inside
+	- write in the file the line "00 3 * * 1 SBATCH path_of_your_file/Scraping_Tripadvisor.sh" to execute the code every monday at 3h00 am
+Step 7 : If you want to kill the cron, you need just to reopen the crontab and delete the lines you want to kill
 
 
 
